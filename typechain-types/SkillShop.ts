@@ -27,24 +27,41 @@ export interface SkillShopInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "checkPurchase"
+      | "hasListingAccess"
       | "hasPurchased"
+      | "listingFee"
       | "owner"
+      | "payListingFee"
       | "purchase"
       | "skills"
       | "usdcToken"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "SkillPurchased"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ListingFeePaid" | "SkillPurchased"
+  ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "checkPurchase",
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "hasListingAccess",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "hasPurchased",
     values: [AddressLike, BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "listingFee",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "payListingFee",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "purchase",
     values: [BigNumberish]
@@ -60,13 +77,35 @@ export interface SkillShopInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "hasListingAccess",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "hasPurchased",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "listingFee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "payListingFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "purchase", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "skills", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "usdcToken", data: BytesLike): Result;
+}
+
+export namespace ListingFeePaidEvent {
+  export type InputTuple = [seller: AddressLike, price: BigNumberish];
+  export type OutputTuple = [seller: string, price: bigint];
+  export interface OutputObject {
+    seller: string;
+    price: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace SkillPurchasedEvent {
@@ -136,13 +175,19 @@ export interface SkillShop extends BaseContract {
     "view"
   >;
 
+  hasListingAccess: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+
   hasPurchased: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
     [boolean],
     "view"
   >;
 
+  listingFee: TypedContractMethod<[], [bigint], "view">;
+
   owner: TypedContractMethod<[], [string], "view">;
+
+  payListingFee: TypedContractMethod<[], [void], "nonpayable">;
 
   purchase: TypedContractMethod<[skillId: BigNumberish], [void], "nonpayable">;
 
@@ -168,6 +213,9 @@ export interface SkillShop extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "hasListingAccess"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "hasPurchased"
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
@@ -175,8 +223,14 @@ export interface SkillShop extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "listingFee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "payListingFee"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "purchase"
   ): TypedContractMethod<[skillId: BigNumberish], [void], "nonpayable">;
@@ -194,6 +248,13 @@ export interface SkillShop extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
 
   getEvent(
+    key: "ListingFeePaid"
+  ): TypedContractEvent<
+    ListingFeePaidEvent.InputTuple,
+    ListingFeePaidEvent.OutputTuple,
+    ListingFeePaidEvent.OutputObject
+  >;
+  getEvent(
     key: "SkillPurchased"
   ): TypedContractEvent<
     SkillPurchasedEvent.InputTuple,
@@ -202,6 +263,17 @@ export interface SkillShop extends BaseContract {
   >;
 
   filters: {
+    "ListingFeePaid(address,uint256)": TypedContractEvent<
+      ListingFeePaidEvent.InputTuple,
+      ListingFeePaidEvent.OutputTuple,
+      ListingFeePaidEvent.OutputObject
+    >;
+    ListingFeePaid: TypedContractEvent<
+      ListingFeePaidEvent.InputTuple,
+      ListingFeePaidEvent.OutputTuple,
+      ListingFeePaidEvent.OutputObject
+    >;
+
     "SkillPurchased(address,uint256,uint256)": TypedContractEvent<
       SkillPurchasedEvent.InputTuple,
       SkillPurchasedEvent.OutputTuple,

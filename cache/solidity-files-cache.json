@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "C:\\Users\\User\\Arc Marketplace AI\\agentshop\\contracts\\SkillShop.sol": {
-      "lastModificationDate": 1776369679903,
-      "contentHash": "2dcd3ac69471e939ca56b1a60fcb0110",
+      "lastModificationDate": 1776526710798,
+      "contentHash": "ce8f9bb57d801b1538253b345f3c9759",
       "sourceName": "contracts/SkillShop.sol",
       "solcConfig": {
         "version": "0.8.20",
